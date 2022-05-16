@@ -9,14 +9,14 @@ T = TypeVar("T", str, int, float)
 def cons(arr: List[T], value: T) -> List[T]:
     """Add a new element."""
     new_arr = arr.copy()
-    if value != None:
+    if value is not None:
         new_arr.append(value)
     return new_arr
 
 
 def remove(arr: List[T], value: T) -> List[T]:
     """Remove an element by value."""
-    if value == None:
+    if value is None:
         return arr
     new_arr: List[T] = []
     for i in range(len(arr)):
@@ -71,7 +71,7 @@ def value_find_key(arr: List[T], value: T) -> int:
 
 def key_find_value(arr: List[T], key: int) -> T:
     """Find value by the index."""
-    if (key == None) or (key < 0 or key >= len(arr)):
+    if (key is None) or (key < 0 or key >= len(arr)):
         raise IndexError("invalid index")
     return arr[key]
 
