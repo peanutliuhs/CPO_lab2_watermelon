@@ -24,6 +24,8 @@ Some algorithms and data structures are simple to implement in this way
 
 ## Changelog
 
+- 01.06.2022 - 0
+  - Update code (implement and test).
 - 16.05.2022 - 2
   - Add code (implement and test).
 - 16.05.2022 - 1

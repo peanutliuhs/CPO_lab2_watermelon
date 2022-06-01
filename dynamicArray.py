@@ -1,81 +1,122 @@
 import math
 from functools import reduce
-from typing import TypeVar
 from typing import Any, List, Callable
 
-T = TypeVar("T", str, int, float)
+
+class DynamicArray(object):
+    def __init__(self, *values: int) -> None:
+        """DynamicArray constructor"""
+        self._values = list(values)
+        self._size = len(self._values)
+
+    def __str__(self) -> str:
+        """for str() implementation"""
+        return str(self._values)
+
+    def __eq__(self, other: Any) -> bool:
+        """for write assertion, we should be abel for check list equality
+        (list are equal, if all elements are equal).
+        """
+        if other is None:
+            return False
+        if self._values == other._values:
+            return True
+        else:
+            return False
 
 
-def cons(arr: List[T], value: T) -> List[T]:
+def cons(arr: DynamicArray, value: int) -> DynamicArray:
     """Add a new element."""
-    new_arr = arr.copy()
-    if value is not None:
-        new_arr.append(value)
-    return new_arr
-
-
-def remove(arr: List[T], value: T) -> List[T]:
-    """Remove an element by value."""
     if value is None:
         return arr
-    new_arr: List[T] = []
-    for i in range(len(arr)):
-        if arr[i] != value:
-            new_arr.append(arr[i])
+    else:
+        new_arr = DynamicArray()
+        new_arr._values = arr._values + [value]
+        new_arr._size = len(new_arr._values)
     return new_arr
 
 
-def length(arr: List[T]) -> int:
+def remove(arr: DynamicArray, value: int) -> DynamicArray:
+    """Remove an element by value."""
+    if (value is None) or (arr._size == 0):
+        return arr
+    tmp_arr = DynamicArray()
+    tmp_arr._values = arr._values[1:]
+    tmp_arr._size = arr._size - 1
+    if arr._values[0] == value:
+        return tmp_arr
+    else:
+        new_arr = DynamicArray()
+        new_arr._values = [arr._values[0]] + remove(tmp_arr, value)._values
+        new_arr._size = arr._size - 1
+        return new_arr
+
+
+def length(arr: DynamicArray) -> int:
     """Return the size of the array."""
-    return len(arr)
+    return arr._size
 
 
-def member(arr: List[T], value: T) -> bool:
+def member(arr: DynamicArray, value: int) -> bool:
     """Check if the value is a member of the array."""
+    if arr._size == 0:
+        return False
     flag = False
-    for i in range(len(arr)):
-        if arr[i] == value:
-            flag = True
+    if arr._values[0] == value:
+        flag = True
+    else:
+        tmp_arr = DynamicArray()
+        tmp_arr._values = arr._values[1:]
+        tmp_arr._size = arr._size - 1
+        flag = member(tmp_arr, value)
     return flag
 
 
-def reverse(arr: List[T]) -> List[T]:
+def reverse(arr: DynamicArray) -> DynamicArray:
     """Reverse the array."""
-    new_arr = []
-    for i in range(len(arr)-1, -1, -1):
-        new_arr.append(arr[i])
+    new_arr = DynamicArray()
+    if arr._size:
+        tmp_arr = DynamicArray()
+        tmp_arr._values = arr._values[:-1]
+        tmp_arr._size = arr._size - 1
+        new_arr._values = [arr._values[-1]] + reverse(tmp_arr)._values
+        new_arr._size = arr._size
     return new_arr
 
 
-def from_list(lst: List[T]) -> List[T]:
+def from_list(lst: List[int]) -> DynamicArray:
     """Conversion from list to DynamicArray."""
-    arr = lst
+    arr = DynamicArray()
+    arr._values = lst
+    arr._size = len(lst)
     return arr
 
 
-def to_list(arr: List[T]) -> List[T]:
+def to_list(arr: DynamicArray) -> List[int]:
     """Conversion from DynamicArray to list."""
-    lst = arr
+    lst = arr._values
     return lst
 
 
-def value_find_key(arr: List[T], value: T) -> int:
+def value_find_key(arr: DynamicArray, value: int) -> int:
     """Find index by the value."""
-    index = -1
-    for i in range(len(arr)):
-        if arr[i] == value:
-            index = i
-            break
+    if arr._size == 0:
+        return -1
+    if arr._values[0] == value:
+        index = 0
+    else:
+        tmp_arr = DynamicArray()
+        tmp_arr._values = arr._values[1:]
+        tmp_arr._size = arr._size - 1
+        index = value_find_key(tmp_arr, value) + 1
     return index
 
 
-def key_find_value(arr: List[T], key: int) -> T:
+def key_find_value(arr: DynamicArray, key: int) -> int:
     """Find value by the index."""
-    if (key is None) or (key < 0 or key >= len(arr)):
+    if (key is None) or (key < 0 or key >= arr._size):
         raise IndexError("invalid index")
-    return arr[key]
-
-# 8. ﬁlter data structure by speciﬁc predicate
+    return arr._values[key]
 
 
 def is_odd(n: int) -> bool:
@@ -90,12 +131,12 @@ def is_even(n: int) -> bool:
         return n % 2 == 0
 
 
-def filter_func(arr: List[T], fun: Callable[[T], T]) -> List[T]:
+def filter_func(arr: DynamicArray, fun: Callable[[int], int]) -> DynamicArray:
     """Filter elements by given function fun."""
-    new_arr = list(filter(fun, arr))
+    new_arr = DynamicArray()
+    new_arr._values = list(filter(fun, arr._values))
+    new_arr._size = len(new_arr._values)
     return new_arr
-
-# 9. map structure by speciﬁc function
 
 
 def square(x: int) -> int:
@@ -104,44 +145,48 @@ def square(x: int) -> int:
         return x ** 2
 
 
-def map_func(arr: List[T], fun: Callable[[T], T]) -> List[T]:
+def map_func(arr: DynamicArray, fun: Callable[[int], int]) -> DynamicArray:
     """Map the elements in the array with the given function fun."""
-    new_arr = list(map(fun, arr))
+    new_arr = DynamicArray()
+    new_arr._values = list(map(fun, arr._values))
+    new_arr._size = len(new_arr._values)
     return new_arr
 
 
-def sum(x: T, y: T) -> T:
+def sum(x: int, y: int) -> int:
     """Calculate the sum of x and y."""
     return x + y
 
 
-def reduce_func(arr: List[T], fun: Callable[[T, T], T]) -> T:
+def reduce_func(arr: DynamicArray, fun: Callable[[int, int], int]) -> int:
     """Reduce process elements and build a value by the function"""
-    sum = reduce(fun, arr)
+    sum = reduce(fun, arr._values)
     return sum
 
 
-def iterator(arr: List[T]) -> Callable[[], T]:
+def iterator(arr: DynamicArray) -> Callable[[], int]:
     """Function style iterator"""
     idx = 0
 
-    def foo() -> T:
+    def foo() -> int:
         nonlocal idx, arr
-        len_arr = len(arr)
+        len_arr = arr._size
         if idx >= len_arr:
             raise StopIteration
-        value = arr[idx]
+        value = arr._values[idx]
         idx += 1
         return value
     return foo
 
 
-def mempty(arr: List[T]) -> List[T]:
+def mempty(arr: DynamicArray) -> DynamicArray:
     """Set the DynamicArray to empty."""
-    return []
+    return DynamicArray()
 
 
-def mconcat(arr: List[T], other_arr: List[T]) -> List[T]:
+def mconcat(arr: DynamicArray, other_arr: DynamicArray) -> DynamicArray:
     """Concat two dynamic arrays."""
-    tmp_arr = arr + other_arr
-    return tmp_arr
+    new_arr = DynamicArray()
+    new_arr._values = arr._values + other_arr._values
+    new_arr._size = arr._size + other_arr._size
+    return new_arr
