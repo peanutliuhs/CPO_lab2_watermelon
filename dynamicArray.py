@@ -134,7 +134,8 @@ def is_even(n: T2) -> bool:
         return False
 
 
-def filter_func(arr: DynamicArray[T2], fun: Callable[[T2], T2]) -> DynamicArray[T2]:
+def filter_func(arr: DynamicArray[T2], fun: Callable[[T2], T2]) \
+        -> DynamicArray[T2]:
     """Filter elements by given function fun."""
     new_arr: DynamicArray[T2] = DynamicArray()
     new_arr._values = list(filter(fun, arr._values))
@@ -150,7 +151,8 @@ def square(x: T2) -> int:
         return -1
 
 
-def map_func(arr: DynamicArray[T2], fun: Callable[[T2], T2]) -> DynamicArray[T2]:
+def map_func(arr: DynamicArray[T2], fun: Callable[[T2], T2]) \
+        -> DynamicArray[T2]:
     """Map the elements in the array with the given function fun."""
     new_arr: DynamicArray[T2] = DynamicArray()
     new_arr._values = list(map(fun, arr._values))
@@ -192,7 +194,8 @@ def mempty(arr: DynamicArray[T2]) -> DynamicArray[T2]:
     return DynamicArray()
 
 
-def mconcat(arr: DynamicArray[T2], other_arr: DynamicArray[T2]) -> DynamicArray[T2]:
+def mconcat(arr: DynamicArray[T2], other_arr: DynamicArray[T2]) \
+        -> DynamicArray[T2]:
     """Concat two dynamic arrays."""
     new_arr: DynamicArray[T2] = DynamicArray()
     new_arr._values = arr._values + other_arr._values
