@@ -1,5 +1,6 @@
 import unittest
 from dynamicArray import *
+from dynamicArray import T, T2
 from hypothesis import given
 import hypothesis.strategies as st
 from typing import List
@@ -8,7 +9,7 @@ from typing import List
 class TestDynamicArray(unittest.TestCase):
 
     def test_cons(self) -> None:
-        arr = DynamicArray()
+        arr: DynamicArray[int] = DynamicArray()
         self.assertEqual(cons(arr, 1)._values, [1])
         self.assertEqual(cons(cons(arr, 1), 4)._values, [1, 4])
 
@@ -35,13 +36,13 @@ class TestDynamicArray(unittest.TestCase):
         self.assertEqual(from_list([1, 4, 5, 3])._values, [1, 4, 5, 3])
 
     def test_to_list(self) -> None:
-        arr1 = DynamicArray()
+        arr1: DynamicArray[int] = DynamicArray()
         self.assertEqual(to_list(arr1), [])
         arr2 = DynamicArray(1, 4, 5, 3)
         self.assertEqual(to_list(arr2), [1, 4, 5, 3])
 
     def test_find(self) -> None:
-        arr1 = DynamicArray()
+        arr1: DynamicArray[int] = DynamicArray()
         self.assertEqual(value_find_key(arr1, 0), -1)
         self.assertEqual(value_find_key(arr1, 1), -1)
         arr2 = DynamicArray(1, 4, 5, 3)
@@ -73,13 +74,13 @@ class TestDynamicArray(unittest.TestCase):
         self.assertEqual(get_next1(), get_next2())
 
     def test_mempty(self) -> None:
-        arr1 = DynamicArray()
+        arr1: DynamicArray[int] = DynamicArray()
         self.assertEqual(mempty(arr1)._values, [])
         arr2 = DynamicArray(1, 4, 5, 3)
         self.assertEqual(mempty(arr2)._values, [])
 
     def test_mconcat(self) -> None:
-        arr1 = DynamicArray()
+        arr1: DynamicArray[int] = DynamicArray()
         arr2 = DynamicArray(1, 4)
         arr3 = DynamicArray(5, 3)
         self.assertEqual(mconcat(arr1, arr1)._values, [])
@@ -100,7 +101,7 @@ class TestDynamicArray(unittest.TestCase):
 
     @given(st.lists(st.integers()))
     def test_monoid_identity(self, lst: List[int]) -> None:
-        arr1 = DynamicArray()
+        arr1: DynamicArray[int] = DynamicArray()
         arr2 = from_list(lst)
         self.assertEqual(mconcat(mempty(arr1), arr2), arr2)
         self.assertEqual(mconcat(arr2, mempty(arr1)), arr2)
@@ -116,8 +117,44 @@ class TestDynamicArray(unittest.TestCase):
         c = from_list(arr3)
         self.assertEqual(mconcat(mconcat(a, b), c), mconcat(a, mconcat(b, c)))
 
+    @given(st.lists(st.integers()), st.lists(st.integers()),
+           st.integers())
+    def test_check_immutability(self, lst1: List[int],
+                                lst2: List[int], value: int) -> None:
+        arr1 = from_list(lst1)
+        arr2 = from_list(lst2)
+        self.assertNotEqual(cons(arr1, value)._values, lst1)
+        self.assertEqual(arr1._values, lst1)
+        if arr1._size:
+            self.assertNotEqual(remove(arr1, arr1._values[0])._values, lst1)
+            self.assertEqual(member(arr1, value), value in lst1)
+            self.assertEqual(arr1._values, lst1)
+            self.assertEqual(arr1._size, len(lst1))
+            self.assertEqual(key_find_value(arr1, 0), lst1[0])
+            self.assertEqual(arr1._values, lst1)
+            get_next = iterator(arr1)
+            self.assertEqual(get_next(), lst1[0])
+            reduce_func(arr1, sum)
+            self.assertEqual(arr1._values, lst1)
+            self.assertNotEqual(mempty(arr1), arr1)
+            self.assertEqual(arr1._values, lst1)
+            self.assertEqual(arr1._size, len(lst1))
+            self.assertNotEqual(mconcat(arr1, arr2), arr2)
+            self.assertEqual(arr1._values, lst1)
+            self.assertEqual(arr1._size, len(lst1))
+        self.assertEqual(length(arr1), len(lst1))
+        self.assertEqual(to_list(arr1), lst1)
+        reverse(arr1)
+        self.assertEqual(arr1._values, lst1)
+        filter_func(arr1, is_odd)
+        filter_func(arr1, is_even)
+        self.assertEqual(arr1._values, lst1)
+        map_func(arr1, square)
+        self.assertEqual(arr1._values, lst1)
+        self.assertEqual(arr1._size, len(lst1))
+
     def test_api(self) -> None:
-        empty = DynamicArray()
+        empty: DynamicArray[int] = DynamicArray()
         l1 = cons(empty, 1)
         l2 = cons(cons(empty, 1), 2)
         l3 = cons(cons(empty, 2), 1)
